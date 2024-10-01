@@ -2,14 +2,13 @@ package com.gmat.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.gmat.ui.screen.login.Login
 import com.gmat.ui.screen.login.Register
+import com.gmat.ui.screens.login.Login
 import com.gmat.ui.screens.profile.AboutUs
 import com.gmat.ui.screens.profile.EditProfileDetails
 import com.gmat.ui.screens.profile.FAQ
 import com.gmat.ui.screens.profile.Languages
 import com.gmat.ui.screens.profile.Profile
-
 
 sealed class NavRoutes(val route: String) {
     data object Profile : NavRoutes("profile")
@@ -38,8 +37,6 @@ sealed class NavRoutes(val route: String) {
         }
     }
 }
-
-
 
 val authScreens=mapOf<String,@Composable (navController: NavController) -> Unit>(
     NavRoutes.Login.route to { navController -> Login(navController=navController) },

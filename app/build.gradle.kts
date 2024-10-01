@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.play.services.code.scanner)
     implementation(libs.androidx.monitor)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)
     ksp(libs.hilt.android.compiler)

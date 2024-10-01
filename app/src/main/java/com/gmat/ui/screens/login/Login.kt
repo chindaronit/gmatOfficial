@@ -1,4 +1,4 @@
-package com.gmat.ui.screen.login
+package com.gmat.ui.screens.login
 
 
 import android.app.Activity
