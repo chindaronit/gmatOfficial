@@ -3,7 +3,9 @@ package com.gmat.ui.screens.rewards
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,7 +28,7 @@ fun Rewards(
     Scaffold(
         topBar = {
             CenterBar(
-                onClick = {navController.navigateUp()},
+                onClick = { navController.navigateUp() },
                 title = {
                     Text(
                         text = stringResource(id = R.string.rewards),
@@ -37,7 +39,9 @@ fun Rewards(
         },
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
         ) {
 
             ElevatedCard(
@@ -62,12 +66,12 @@ fun Rewards(
                         modifier = Modifier.padding(horizontal = 30.dp)
                     ) {
                         Text(
-                            text = stringResource(id = R.string.your_rank)+":",
+                            text = stringResource(id = R.string.your_rank) + ": 501",
                             fontSize = 20.sp
                         )
                         Spacer(modifier = Modifier.height(5.dp))
                         Text(
-                            text = stringResource(id = R.string.your_points)+":",
+                            text = stringResource(id = R.string.your_points) + ": 400",
                             fontWeight = FontWeight.ExtraLight,
                             fontSize = 18.sp
                         )
@@ -100,21 +104,79 @@ fun Rewards(
                 LeaderboardEntry(
                     name = "Ronit Chinda",
                     points = "1000",
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    position = 1
                 )
-
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp)
+                )
                 LeaderboardEntry(
                     name = "Vishal Kumar Prajapati",
-                    points = "1000",
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    points = "996",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    position = 2
                 )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp)
+                )
+                LeaderboardEntry(
+                    name = "Sahaj Gupta",
+                    points = "995",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    position = 3
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp)
+                )
+                LeaderboardEntry(
+                    name = "Himanshu Ahirwal",
+                    points = "992",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    position = 4
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp)
+                )
+                LeaderboardEntry(
+                    name = "Rishabh Dev",
+                    points = "990",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    position = 5
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp)
+                )
+                LeaderboardEntry(
+                    name = "Anant Sharma",
+                    points = "885",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    position = 6
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 25.dp))
             }
         }
     }
 }
 
 @Composable
-fun LeaderboardEntry(name: String, points: String, modifier: Modifier = Modifier) {
+fun LeaderboardEntry(name: String, points: String, modifier: Modifier = Modifier,position: Int) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -129,14 +191,16 @@ fun LeaderboardEntry(name: String, points: String, modifier: Modifier = Modifier
                 .padding(15.dp),
         ) {
 
-            RenderPainterIcon(id = R.drawable.reward_icon, modifier = Modifier
-                .size(45.dp)
-                .clip(CircleShape)
-                .border(
-                    BorderStroke(3.dp, MaterialTheme.colorScheme.onSurface),
-                    CircleShape
-                )
-                .padding(10.dp))
+            RenderPainterIcon(
+                id = R.drawable.reward_icon, modifier = Modifier
+                    .size(45.dp)
+                    .clip(CircleShape)
+                    .border(
+                        BorderStroke(3.dp, if(position==1) MaterialTheme.colorScheme.onSurface else TODO()),
+                        CircleShape
+                    )
+                    .padding(10.dp)
+            )
 
             Column(
                 modifier = Modifier

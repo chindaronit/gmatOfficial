@@ -40,6 +40,7 @@ import com.gmat.ui.components.Bar
 import java.time.LocalTime
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import com.gmat.ui.components.login.Top
 import com.gmat.ui.events.QRScannerEvents
 import com.gmat.ui.state.QRScannerState
 
@@ -134,7 +135,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize(), // Ensure the column fills available space
         ) {
-//            Top()
+            Top()
 
             HorizontalDivider(
                 Modifier

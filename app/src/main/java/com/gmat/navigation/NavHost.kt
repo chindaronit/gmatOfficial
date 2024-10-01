@@ -26,7 +26,7 @@ fun AppNavHost(
     scannerViewModel: ScannerViewModel
 ) {
 
-    NavHost(navController, startDestination = NavRoutes.Login.route) {
+    NavHost(navController, startDestination = NavRoutes.Home.route) {
         animatedComposable(NavRoutes.Profile.route) {
             Profile(navController)
         }

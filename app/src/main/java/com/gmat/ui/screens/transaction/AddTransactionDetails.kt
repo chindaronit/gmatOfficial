@@ -49,7 +49,7 @@ fun AddTransactionDetails(
     var canContinuePayment by remember {
         mutableStateOf(false)
     }
-    val isMerchant=false
+    val isMerchant=true
 
     if(isMerchant){
         LaunchedEffect(key1 = gstin, key2 = amount) {
