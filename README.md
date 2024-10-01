@@ -14,11 +14,11 @@ Lightweight android application build with Material UI to record UPI transaction
 <div align="left">
 
 <div align="center">
-    <img src="metadata/images/1_home.png" width="1290"  alt=""/>
-    <img src="metadata/images/2_language.png" width="1290"  alt=""/>
-    <img src="metadata/images/3_transactionChat.png" width="1290"  alt=""/>
-    <img src="metadata/images/4_transactionDetails.png" width="1290"  alt=""/>
-    <img src="metadata/images/5_Rewards.png" width="1290"  alt=""/>
+    <img src="metadata/images/1_home.png" width="20%"  alt=""/>
+    <img src="metadata/images/2_language.png" width="20%"  alt=""/>
+    <img src="metadata/images/3_transactionChat.png" width="20%"  alt=""/>
+    <img src="metadata/images/4_transactionDetails.png" width="20%"  alt=""/>
+    <img src="metadata/images/5_Rewards.png" width="20%"  alt=""/>
 </div>
 </div>
 
