@@ -1,5 +1,5 @@
 <div align="center">
-<img width="192" height="192" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" align="center" alt="">
+<img width="192" height="192" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp" align="center" alt="">
 
 <br></br>
 
@@ -14,9 +14,11 @@ Lightweight android application build with Material UI to record UPI transaction
 <div align="left">
 
 <div align="center">
-    <img src="metadata/images/1_home.jpg" width="30%"  alt=""/>
-    <img src="metadata/images/2_profile.jpg" width="30%"  alt=""/>
-    <img src="metadata/images/3_transaction.jpg" width="30%"  alt=""/>
+    <img src="metadata/images/1_home.png" width="1290"  alt=""/>
+    <img src="metadata/images/2_language.png" width="1290"  alt=""/>
+    <img src="metadata/images/3_transactionChat.png" width="1290"  alt=""/>
+    <img src="metadata/images/4_transactionDetails.png" width="1290"  alt=""/>
+    <img src="metadata/images/5_Rewards.png" width="1290"  alt=""/>
 </div>
 </div>
 
