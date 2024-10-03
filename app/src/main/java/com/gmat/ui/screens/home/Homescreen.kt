@@ -163,13 +163,25 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
-            Text(
-                text = stringResource(id = R.string.business),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 20.dp)
-            )
+            if (isBusiness){
+                Text(
+                    text = stringResource(id = R.string.people),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 20.dp)
+                )
+            }
+            else{
+                Text(
+                    text = stringResource(id = R.string.business),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 20.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(30.dp))
 
             // List of example user names
