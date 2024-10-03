@@ -20,6 +20,9 @@ import androidx.navigation.NavController
 import com.gmat.R
 import com.gmat.ui.components.CenterBar
 import com.gmat.ui.components.RenderPainterIcon
+import com.gmat.ui.theme.bronze
+import com.gmat.ui.theme.gold
+import com.gmat.ui.theme.silver
 
 @Composable
 fun Rewards(
@@ -61,7 +64,7 @@ fun Rewards(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RenderPainterIcon(id = R.drawable.reward_icon, modifier = Modifier.size(100.dp))
+                    RenderPainterIcon(id = R.drawable.reward_icon, modifier = Modifier.size(100.dp), tint = MaterialTheme.colorScheme.onPrimary)
                     Column(
                         modifier = Modifier.padding(horizontal = 30.dp)
                     ) {
@@ -167,16 +170,18 @@ fun Rewards(
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                     position = 6
                 )
-                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 25.dp))
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp)
+                )
             }
         }
     }
 }
 
 @Composable
-fun LeaderboardEntry(name: String, points: String, modifier: Modifier = Modifier,position: Int) {
+fun LeaderboardEntry(name: String, points: String, modifier: Modifier = Modifier, position: Int) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -196,10 +201,25 @@ fun LeaderboardEntry(name: String, points: String, modifier: Modifier = Modifier
                     .size(45.dp)
                     .clip(CircleShape)
                     .border(
-                        BorderStroke(3.dp, if(position==1) MaterialTheme.colorScheme.onSurface else TODO()),
+                        BorderStroke(
+                            3.dp,
+                            when(position){
+                                1-> gold
+                                2-> silver
+                                3-> bronze
+                                else -> MaterialTheme.colorScheme.onSurface
+                            }
+                        ),
                         CircleShape
                     )
-                    .padding(10.dp)
+                    .padding(10.dp),
+                tint=
+                    when(position){
+                        1-> gold
+                        2-> silver
+                        3-> bronze
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
             )
 
             Column(

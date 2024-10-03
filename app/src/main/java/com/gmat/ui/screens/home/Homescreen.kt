@@ -51,7 +51,7 @@ fun HomeScreen(
     onScannerEvent: (QRScannerEvents)->Unit
 ) {
     val user = "Ronit Chinda"
-    val isBusiness by remember { mutableStateOf(false) }
+    val isBusiness by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
     var hasCameraPermission by remember {

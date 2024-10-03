@@ -1,8 +1,6 @@
 <div align="center">
 <img width="192" height="192" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp" align="center" alt="">
-
-<br></br>
-
+<br>
 
 # Gmat
 
