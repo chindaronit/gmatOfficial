@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,8 +30,6 @@ import com.gmat.ui.components.CenterBar
 import com.gmat.ui.events.QRScannerEvents
 import com.gmat.ui.events.UserEvents
 import com.gmat.ui.screens.transaction.GSTVerifiedButton
-import com.gmat.ui.state.QRScannerState
-import com.gmat.ui.state.UserState
 
 @Composable
 fun UpgradeQR(
