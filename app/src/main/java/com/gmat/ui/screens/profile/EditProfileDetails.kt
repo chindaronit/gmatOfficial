@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
@@ -17,101 +18,189 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.gmat.R
 import com.gmat.ui.components.CenterBar
+import com.gmat.ui.components.CustomToast
+import com.gmat.ui.events.UserEvents
+import com.gmat.ui.state.UserState
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
 @Composable
 fun EditProfileDetails(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    userState: UserState,
+    onUserEvents: (UserEvents) -> Unit,
+    authToken: String
 ) {
     val storage = FirebaseStorage.getInstance()
     val storageRef = storage.reference
-
-    // State to hold the download URL of the uploaded image
+    var canConfirm by remember { mutableStateOf(true) }
+    var isUploaded by remember { mutableStateOf(false) }
     var downloadUrl by remember { mutableStateOf<String?>(null) }
 
-    // Activity Result Launcher for picking an image
+    // List to store all uploaded image URLs
+    val uploadedImageUrls = remember { mutableStateListOf<String>() }
+
     val imagePickerLauncher: ActivityResultLauncher<Intent> = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    // Call the function to upload the image
+                    isUploaded=false
                     uploadImageToFirebase(
                         uri,
                         storageRef,
                         onSuccess = { url ->
-                            // Store the download URL in the state
+                            uploadedImageUrls.add(url)
                             downloadUrl = url
-                            Log.d("Firebase", "Image download URL: $downloadUrl")
+                            onUserEvents(UserEvents.OnProfileChange(downloadUrl!!))
                         },
                         onFailure = { exception ->
                             Log.e("Firebase", "Error uploading image: ${exception.message}")
                         }
                     )
                 }
+            } else {
+                canConfirm = true
             }
         }
     )
 
+    LaunchedEffect(key1 = userState.newProfile) {
+        if (userState.newProfile.isNotBlank()) {
+            canConfirm = true
+            isUploaded = true
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterBar(
-                onClick = { navController.navigateUp() },
+                onClick = {
+                    onUserEvents(UserEvents.ClearNewProfile)
+                    navController.navigateUp()
+                },
                 title = {
                     Text(
                         text = stringResource(id = R.string.edit_profile),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
+                    if (canConfirm) {
+                        IconButton(onClick = {
+                            if(userState.user!!.profile.isNotBlank()){
+                                deleteFromFirebase(userState.user.profile)
+                            }
+
+                            uploadedImageUrls.dropLast(1).forEach { oldImageUrl ->
+                                val oldImageRef =
+                                    FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl)
+                                oldImageRef.delete().addOnSuccessListener {
+                                    Log.d("Firebase", "Old image $oldImageUrl deleted successfully")
+                                }.addOnFailureListener { exception ->
+                                    Log.e(
+                                        "Firebase",
+                                        "Failed to delete old image: ${exception.message}"
+                                    )
+                                }
+                            }
+                            onUserEvents(UserEvents.UpdateUser)
+                            onUserEvents(
+                                UserEvents.UpdateRoom(
+                                    user = userState.user,
+                                    verificationId = userState.verificationId,
+                                    authToken
+                                )
+                            )
+                            navController.navigateUp()
+                        }) {
+                            Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
+                        }
                     }
                 })
         },
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxWidth()
-                .padding(top = 20.dp, start = 10.dp, end = 10.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
         ) {
-            Icon(
-                imageVector = Icons.Rounded.AccountCircle,
-                contentDescription = null,
-                modifier = modifier.size(150.dp)
-            )
-            Button(onClick = {
-                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                imagePickerLauncher.launch(intent)
-            }) {
-                Text(text = stringResource(id = R.string.upload_photo), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, start = 10.dp, end = 10.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (isUploaded) {
+                    AsyncImage(
+                        model = userState.newProfile,
+                        contentDescription = null,
+                        modifier = modifier
+                            .padding(top = 10.dp)
+                            .size(150.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Rounded.AccountCircle,
+                        contentDescription = null,
+                        modifier = modifier.size(150.dp)
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        val intent =
+                            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        canConfirm = false
+                        imagePickerLauncher.launch(intent)
+
+                    },
+                    enabled = canConfirm
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.upload_photo),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Spacer(modifier = modifier.height(20.dp))
+                OutlinedTextField(
+                    value = userState.newName,
+                    onValueChange = {
+                        onUserEvents(UserEvents.OnNameChange(it))
+                    },
+                    modifier = modifier.fillMaxWidth(),
+                    label = {
+                        Text(
+                            "Name",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                )
             }
-            Spacer(modifier = modifier.height(20.dp))
-            OutlinedTextField(
-                value = "Ronit Chinda",
-                onValueChange = {},
-                modifier = modifier.fillMaxWidth(),
-                label = { Text("Name") }
+            CustomToast(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                message = "Uploading",
+                isVisible = !canConfirm
             )
         }
     }
@@ -140,5 +229,15 @@ private fun uploadImageToFirebase(
     }.addOnFailureListener { exception ->
         Log.e("Firebase", "Upload failed: ${exception.message}")
         onFailure(exception)
+    }
+}
+
+
+private fun deleteFromFirebase(url: String) {
+    val oldImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(url)
+    oldImageRef.delete().addOnSuccessListener {
+        Log.d("Firebase", "Old image $url deleted successfully")
+    }.addOnFailureListener { exception ->
+        Log.e("Firebase", "Failed to delete old image: ${exception.message}")
     }
 }
