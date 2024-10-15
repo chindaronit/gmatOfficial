@@ -5,8 +5,13 @@ import com.gmat.ui.components.CenterBar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -15,51 +20,68 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gmat.R
-import com.gmat.env.formatDateWithDay
+import com.gmat.data.model.TransactionModel
+import com.gmat.data.model.UserModel
+import com.gmat.env.ChatDetails
+import com.gmat.env.formatDate
 import com.gmat.navigation.NavRoutes
+import com.gmat.ui.events.QRScannerEvents
+import com.gmat.ui.events.TransactionEvents
 import com.gmat.ui.theme.DarkGreen
 import com.gmat.ui.theme.DarkRed
-import java.util.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransactionChat(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    user: UserModel?,
+    chatIndex: String,
+    recentUserTransactions: List<ChatDetails>? = null,
+    onQRScannerEvents: (QRScannerEvents) -> Unit
 ) {
-    val transactions = listOf(
-        Transaction("₹500.00", "Completed", Date(2024, 8, 10, 14, 30)),
-        Transaction("₹1500.00", "Pending", Date(2024, 8, 11, 9, 15)),
-        Transaction("₹750.00", "Failed", Date(2024, 8, 12, 18, 45)),
-        Transaction("₹100000.00", "Completed", Date(2024, 8, 13, 12, 0)),
-        Transaction("₹200.00", "Completed", Date(2024, 8, 14, 16, 30)),
-        Transaction("₹1200.00", "Completed", Date(2024, 8, 13, 12, 0)),
-        Transaction("₹200.00", "Completed", Date(2024, 8, 14, 16, 30)),
-        Transaction("₹500.00", "Completed", Date(2024, 8, 10, 14, 30)),
-        Transaction("₹1500.00", "Pending", Date(2024, 8, 11, 9, 15)),
-        Transaction("₹750.00", "Failed", Date(2024, 8, 12, 18, 45)),
-        Transaction("₹1200.00", "Completed", Date(2024, 8, 13, 12, 0)),
-        Transaction("₹200.00", "Completed", Date(2024, 8, 14, 16, 30)),
-        Transaction("₹1200.00", "Completed", Date(2024, 8, 13, 12, 0)),
-        Transaction("₹200.00", "Completed", Date(2024, 8, 14, 16, 30)),
-    )
+    val transactionUser by remember {
+        mutableStateOf(recentUserTransactions?.get(chatIndex.toInt())?.userDetails)
+    }
+
+    val chats by remember {
+        mutableStateOf(
+            recentUserTransactions?.get(chatIndex.toInt())?.transactions?.sortedBy { it.timestamp }
+        )
+    }
+
+    val listState = rememberLazyListState()
+
+// Automatically scroll to the last item (most recent chat) with smooth animation
+    LaunchedEffect(chats) {
+        chats?.let {
+            launch {
+                listState.animateScrollToItem(
+                    index = it.size - 1, // Scroll to the last item
+                    scrollOffset = 0 // Adjust this if needed
+                )
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             CenterBar(
-                onClick = {navController.navigateUp()},
+                onClick = { navController.navigateUp() },
                 title = {
                     Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = "Ronit Chinda",
-                            style = MaterialTheme.typography.titleLarge,
+                            text = transactionUser!!.name,
+                            style = MaterialTheme.typography.headlineMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "UPI ID: chinda@ybl",
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = "UPI ID: ${transactionUser!!.vpa}",
+                            style = MaterialTheme.typography.labelMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -67,44 +89,92 @@ fun TransactionChat(
                 }
             )
         },
-
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = {navController.navigate(NavRoutes.AddTransactionDetails.route)},
-            ) {
-                Text("Pay")
+            user?.let { user ->
+                if (!user.isMerchant) {
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            onQRScannerEvents(QRScannerEvents.AddQR(transactionUser!!.qr))
+                            navController.navigate(NavRoutes.AddTransactionDetails.route)
+                        }
+                    ) {
+                        Text(
+                            "Pay",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
-        },
-
+        }
     ) { innerPadding ->
-
         LazyColumn(
+            state = listState, // Attach the list state for controlling the scroll position
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(bottom = 80.dp)
         ) {
-            itemsIndexed(transactions, key = { index, _ -> index }) { _, transaction ->
+            itemsIndexed(chats!!, key = { _, transaction -> transaction.txnId }) { _, transaction ->
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Spacer(modifier = Modifier.weight(1f)) // Pushes the card to the right
-                    TransactionCard(
-                        navController=navController,
-                        transaction = transaction,
-                        modifier = Modifier.weight(1f) // Ensures the card is on the right side and takes appropriate space
-                    )
+                    if (user?.isMerchant == true) {
+                        // Merchant: Show card on the left side
+                        TransactionCard(
+                            navController = navController,
+                            transaction = transaction,
+                            transactionUser = transactionUser,
+                            modifier = Modifier.weight(1f),
+                            isMerchant = true,
+                            payerUserId = ""
+                        )
+                        Spacer(modifier = Modifier.weight(1f)) // Push content to the right
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f)) // Pushes the card to the right
+                        TransactionCard(
+                            navController = navController,
+                            transaction = transaction,
+                            transactionUser = transactionUser,
+                            modifier = Modifier.weight(1f),
+                            isMerchant = false,
+                            payerUserId = user!!.userId // Card on the right side
+                        )
+                    }
                 }
             }
         }
-
     }
 }
 
+// TransactionCard composable to display transaction details
 @Composable
-fun TransactionCard(transaction: Transaction, modifier: Modifier = Modifier, navController: NavController) {
+fun TransactionCard(
+    transaction: TransactionModel,
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    transactionUser: UserModel?,
+    isMerchant: Boolean,
+    payerUserId: String
+) {
     Card(
-        onClick = {navController.navigate(NavRoutes.TransactionReceipt.route)},
+        onClick = {
+            if (isMerchant) {
+                navController.navigate(
+                    NavRoutes.TransactionReceipt.withArgs(
+                        transaction.txnId,
+                        transactionUser!!.userId
+                    )
+                )
+            } else {
+                navController.navigate(
+                    NavRoutes.TransactionReceipt.withArgs(
+                        transaction.txnId,
+                        payerUserId
+                    )
+                )
+            }
+
+        },
         modifier = modifier
             .padding(8.dp), // Card-specific padding
         elevation = CardDefaults.cardElevation(4.dp),
@@ -122,7 +192,7 @@ fun TransactionCard(transaction: Transaction, modifier: Modifier = Modifier, nav
                 modifier = Modifier.fillMaxWidth() // Ensures column takes full width of the card
             ) {
                 Text(
-                    text = transaction.status,
+                    text = getTransactionStatusText(transaction.status),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = 12.sp
                     ),
@@ -132,7 +202,7 @@ fun TransactionCard(transaction: Transaction, modifier: Modifier = Modifier, nav
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = transaction.amount,
+                    text = "₹ " + transaction.amount,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -140,7 +210,7 @@ fun TransactionCard(transaction: Transaction, modifier: Modifier = Modifier, nav
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = formatDateWithDay(Date()),
+                    text = formatDate(transaction.timestamp),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = 10.sp
                     ),
@@ -150,13 +220,13 @@ fun TransactionCard(transaction: Transaction, modifier: Modifier = Modifier, nav
 
             // Status image at the top right corner
             val (statusImage, statusColor) = when (transaction.status) {
-                "Completed" -> Pair(R.drawable.success, DarkGreen) // Success: Green
+                1 -> Pair(R.drawable.success, DarkGreen) // Success: Green
                 else -> Pair(R.drawable.failed, DarkRed)
             }
 
             Icon(
                 painter = painterResource(id = statusImage),
-                contentDescription = transaction.status,
+                contentDescription = getTransactionStatusText(transaction.status),
                 modifier = Modifier
                     .align(Alignment.TopEnd) // Aligns the icon to the top right of the card
                     .size(30.dp),
@@ -166,9 +236,10 @@ fun TransactionCard(transaction: Transaction, modifier: Modifier = Modifier, nav
     }
 }
 
-
-data class Transaction(
-    val amount: String,
-    val status: String,
-    val date: Date
-)
+fun getTransactionStatusText(status: Int): String {
+    return when (status) {
+        1 -> "Completed"
+        2 -> "Pending"
+        else -> "Failed"
+    }
+}
