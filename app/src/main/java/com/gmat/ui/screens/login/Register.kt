@@ -1,4 +1,4 @@
-package com.gmat.ui.screen.login
+package com.gmat.ui.screens.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +26,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,18 +38,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.gmat.data.model.UserModel
 import com.gmat.navigation.NavRoutes
 import com.gmat.ui.components.login.Bottom
 import com.gmat.ui.components.login.Top
+import com.gmat.ui.events.UserEvents
+import com.gmat.ui.state.UserState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Register(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    userState: UserState,
+    onUserEvents: (UserEvents)->Unit,
+    authToken: String
 ) {
 
     var name by remember {
+        mutableStateOf("")
+    }
+
+    var vpa by remember {
         mutableStateOf("")
     }
 
@@ -58,6 +70,18 @@ fun Register(
     val values = listOf("Personal", "Merchant")
     var currentVal = "Personal"
 
+    LaunchedEffect(key1 = userState.user) {
+        if(userState.user!=null){
+            if(userState.user.phNo.isNotBlank()){
+                onUserEvents(UserEvents.UpdateRoom(user = userState.user, verificationId = userState.verificationId, authToken=authToken))
+                navController.navigate(NavRoutes.Home.route) {
+                    popUpTo(0) { inclusive = true } // This removes everything from the backstack
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,9 +89,7 @@ fun Register(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
-                title = {
-                    Text("GMAT")
-                }
+                title = { Text("GMAT", style = MaterialTheme.typography.headlineLarge) }
             )
         },
     )
@@ -91,8 +113,7 @@ fun Register(
             ) {
                 Text(
                     text = "Complete your profile",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    style = MaterialTheme.typography.headlineLarge
                 )
                 Spacer(modifier = modifier.height(20.dp))
                 OutlinedTextField(
@@ -105,7 +126,7 @@ fun Register(
                     placeholder = {
                         Text(
                             text = "Enter your Name",
-                            fontFamily = FontFamily.Monospace
+                            style = MaterialTheme.typography.headlineMedium
                         )
                     },
                     leadingIcon = {
@@ -143,7 +164,7 @@ fun Register(
                         values.forEach { label ->
                             DropdownMenuItem(
                                 text = {
-                                    Text(label)
+                                    Text(label, style = MaterialTheme.typography.bodyLarge)
                                 },
                                 onClick = {
                                     currentVal = label
@@ -155,19 +176,43 @@ fun Register(
                     }
                 }
                 Spacer(modifier = modifier.height(20.dp))
+                if(currentVal == "Personal"){
+                    OutlinedTextField(
+                        value = vpa,
+                        onValueChange = {
+                            vpa = it
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Enter your VPA",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Payment,
+                                contentDescription = null
+                            )
+                        },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    )
+                    Spacer(modifier = modifier.height(20.dp))
+                }
                 Button(onClick = {
-                    navController.navigate(NavRoutes.Home.route) {
-                        popUpTo(NavRoutes.Register.route) {
-                            inclusive = true
-                        } // Clears the back stack
-                        launchSingleTop = true  // Avoids multiple instances of the OTP screen
+                    if(currentVal=="Merchant"){
+                        onUserEvents(UserEvents.AddUser(user = UserModel(name=name, vpa = "", isMerchant = currentVal == "Merchant")))
                     }
+                    else{
+                        onUserEvents(UserEvents.AddUser(user = UserModel(name=name, vpa = vpa, isMerchant = currentVal == "Merchant")))
+                    }
+
                 }) {
                     Text(
                         "Get Started",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontFamily = FontFamily.Monospace
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 }
             }

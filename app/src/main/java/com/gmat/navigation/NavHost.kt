@@ -18,6 +18,7 @@ import com.gmat.ui.screens.transaction.TransactionChat
 import com.gmat.ui.screens.transaction.TransactionHistory
 import com.gmat.ui.screens.transaction.TransactionReceipt
 import com.gmat.ui.viewModel.LeaderboardViewModel
+import com.gmat.ui.viewModel.ScannerViewModel
 import com.gmat.ui.viewModel.TransactionViewModel
 import com.gmat.ui.viewModel.UserViewModel
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gmat.data.repository.QRCodeRepository
 import com.gmat.ui.events.QRScannerEvents
+import com.gmat.ui.state.QRScannerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +46,4 @@ class ScannerViewModel @Inject constructor(
             }
         }
     }
-
-
 }

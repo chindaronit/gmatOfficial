@@ -9,6 +9,7 @@ import com.gmat.ui.screens.profile.EditProfileDetails
 import com.gmat.ui.screens.profile.FAQ
 import com.gmat.ui.screens.profile.Languages
 import com.gmat.ui.screens.profile.Profile
+import com.gmat.ui.state.UserState
 import com.gmat.ui.viewModel.UserViewModel
 
 sealed class NavRoutes(val route: String) {
