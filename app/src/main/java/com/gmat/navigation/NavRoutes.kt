@@ -2,13 +2,12 @@ package com.gmat.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.gmat.ui.screen.login.Register
 import com.gmat.ui.screens.login.Login
+import com.gmat.ui.screens.login.Register
 import com.gmat.ui.screens.profile.AboutUs
 import com.gmat.ui.screens.profile.EditProfileDetails
 import com.gmat.ui.screens.profile.FAQ
 import com.gmat.ui.screens.profile.Languages
-import com.gmat.ui.screens.profile.Profile
 import com.gmat.ui.state.UserState
 import com.gmat.ui.viewModel.UserViewModel
 

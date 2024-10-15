@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gmat.ui.screens.home.HomeScreen
+import com.gmat.ui.screens.login.OTP
 import com.gmat.ui.screens.merchant.UpgradeQR
 import com.gmat.ui.screens.merchant.UpgradedQR
 import com.gmat.ui.screens.profile.Profile
@@ -45,8 +46,7 @@ fun AppNavHost(
                 onUserEvents = userViewModel::onEvent,
                 onTransactionEvents = transactionViewModel::onEvent,
                 onLeaderboardEvents = leaderboardViewModel::onEvent,
-                onScannerEvents = scannerViewModel::onEvent,
-                authToken = userState.authToken,
+                onScannerEvents = scannerViewModel::onEvent
             )
         }
 

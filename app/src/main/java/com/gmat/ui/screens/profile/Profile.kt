@@ -14,6 +14,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -27,30 +29,41 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.gmat.R
+import com.gmat.data.model.UserModel
 import com.gmat.navigation.NavRoutes
 import com.gmat.ui.components.CenterBar
+import com.gmat.ui.components.ProfilePreloader
+import com.gmat.ui.events.LeaderboardEvents
+import com.gmat.ui.events.QRScannerEvents
+import com.gmat.ui.events.TransactionEvents
+import com.gmat.ui.events.UserEvents
 
 @Composable
 fun Profile(
-    navController: NavController
+    navController: NavController,
+    user: UserModel?,
+    onUserEvents: (UserEvents) -> Unit,
+    onTransactionEvents: (TransactionEvents) -> Unit,
+    onLeaderboardEvents: (LeaderboardEvents) -> Unit,
+    onScannerEvents: (QRScannerEvents) -> Unit
 ) {
+
     Scaffold(
         topBar = {
             CenterBar(
-                onClick = {navController.navigateUp()},
+                onClick = { navController.navigateUp() },
                 title = {
                     Text(
                         text = stringResource(id = R.string.profile),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 })
         }
@@ -61,44 +74,68 @@ fun Profile(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
         ) {
-            ProfileCard(uName = "Ronit Chinda", uMobile = "7988224882", uUpiId = "7988224882@sbi")
-            Column(
-                modifier = Modifier.padding(20.dp),
-            ) {
-                SettingsBox(
-                    title = stringResource(id = R.string.edit_profile),
-                    iconResId = R.drawable.edit_icon,
-                    onClick = { navController.navigate(NavRoutes.EditDetails.route) })
-                SettingsBox(
-                    title = stringResource(id = R.string.rewards),
-                    iconResId = R.drawable.reward_icon,
-                    onClick = { navController.navigate(NavRoutes.Rewards.route) })
+            if (user == null) {
+                ProfilePreloader()
             }
+            if (user != null) {
+                ProfileCard(
+                    uName = user.name,
+                    uMobile = user.phNo,
+                    uUpiId = user.vpa,
+                    uProfile = user.profile
+                )
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                ) {
+                    SettingsBox(
+                        title = stringResource(id = R.string.edit_profile),
+                        iconResId = R.drawable.edit_icon,
+                        onClick = { navController.navigate(NavRoutes.EditDetails.route) })
 
-            Column(
-                modifier = Modifier.padding(20.dp),
-            ) {
-                SettingsBox(
-                    title = stringResource(id = R.string.languages),
-                    iconResId = R.drawable.globe_icon,
-                    onClick = { navController.navigate(NavRoutes.Language.route) })
-                SettingsBox(
-                    title = stringResource(id = R.string.about_us),
-                    iconResId = R.drawable.information_icon,
-                    onClick = { navController.navigate(NavRoutes.AboutUs.route) })
-                SettingsBox(
-                    title = stringResource(id = R.string.faq),
-                    iconResId = R.drawable.question_icon,
-                    onClick = { navController.navigate(NavRoutes.FAQ.route) })
-            }
+                    if (!user.isMerchant) {
+                        SettingsBox(
+                            title = stringResource(id = R.string.rewards),
+                            iconResId = R.drawable.reward_icon,
+                            onClick = { navController.navigate(NavRoutes.Rewards.route) })
+                    }
+                }
 
-            Column(
-                modifier = Modifier.padding(20.dp),
-            ) {
-                SettingsBox(
-                    title = stringResource(id = R.string.sign_out),
-                    iconResId = R.drawable.power_icon,
-                    onClick = {})
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                ) {
+                    SettingsBox(
+                        title = stringResource(id = R.string.languages),
+                        iconResId = R.drawable.globe_icon,
+                        onClick = { navController.navigate(NavRoutes.Language.route) })
+                    SettingsBox(
+                        title = stringResource(id = R.string.about_us),
+                        iconResId = R.drawable.information_icon,
+                        onClick = { navController.navigate(NavRoutes.AboutUs.route) })
+                    SettingsBox(
+                        title = stringResource(id = R.string.faq),
+                        iconResId = R.drawable.question_icon,
+                        onClick = { navController.navigate(NavRoutes.FAQ.route) })
+                }
+
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                ) {
+                    SettingsBox(
+                        title = stringResource(id = R.string.sign_out),
+                        iconResId = R.drawable.power_icon,
+                        onClick = {
+                            onUserEvents(UserEvents.SignOut)
+                            onTransactionEvents(TransactionEvents.SignOut)
+                            onLeaderboardEvents(LeaderboardEvents.SignOut)
+                            onScannerEvents(QRScannerEvents.ClearState)
+                            navController.navigate(NavRoutes.Login.route) {
+                                popUpTo(NavRoutes.Home.route) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        })
+                }
             }
         }
     }
@@ -109,6 +146,7 @@ fun ProfileCard(
     uName: String = "",
     uUpiId: String = "",
     uMobile: String = "",
+    uProfile: String = ""
 ) {
     ElevatedCard(
         onClick = {},
@@ -130,25 +168,52 @@ fun ProfileCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            Icon(
-                painter = painterResource(R.drawable.user_icon),
-                contentDescription = null,
-                modifier = Modifier.size(80.dp)
-            )
+            if (uProfile.isNotBlank()) {
+                AsyncImage(
+                    model = uProfile,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(90.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.user_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.width(20.dp))
             Column(
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(horizontal = 10.dp),
             ) {
                 Text(
                     text = uName,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 22.sp
+                    style = MaterialTheme.typography.bodyMedium
                 )
-                Text(text = uUpiId)
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = uUpiId,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(end = 2.dp)
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+
                 Text(
                     text = uMobile,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.bodySmall,
                 )
+
             }
         }
     }
@@ -180,10 +245,8 @@ fun SettingsBox(
         ) {
             Text(
                 text = title,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.ExtraBold,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontFamily = FontFamily.Serif
             )
             RenderPainter(
                 iconResId = iconResId,
