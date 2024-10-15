@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gmat.navigation.AppNavHost
 import com.gmat.ui.theme.GmatTheme
-import com.gmat.ui.viewModel.ScannerViewModel
 import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning

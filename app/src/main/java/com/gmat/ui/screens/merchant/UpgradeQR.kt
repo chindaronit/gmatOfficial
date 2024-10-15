@@ -27,7 +27,6 @@ import com.gmat.navigation.NavRoutes
 import com.gmat.ui.components.CenterBar
 import com.gmat.ui.events.QRScannerEvents
 import com.gmat.ui.screens.transaction.GSTVerifiedButton
-import com.gmat.ui.state.QRScannerState
 
 @Composable
 fun UpgradeQR(

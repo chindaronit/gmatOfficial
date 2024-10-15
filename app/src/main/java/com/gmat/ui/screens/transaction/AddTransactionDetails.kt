@@ -25,7 +25,6 @@ import com.gmat.navigation.NavRoutes
 import com.gmat.ui.components.CenterBar
 import com.gmat.ui.components.transaction.ProfileTransactionCard
 import com.gmat.ui.events.QRScannerEvents
-import com.gmat.ui.state.QRScannerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

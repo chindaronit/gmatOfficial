@@ -9,6 +9,7 @@ import com.gmat.ui.screens.profile.EditProfileDetails
 import com.gmat.ui.screens.profile.FAQ
 import com.gmat.ui.screens.profile.Languages
 import com.gmat.ui.screens.profile.Profile
+import com.gmat.ui.viewModel.UserViewModel
 
 sealed class NavRoutes(val route: String) {
     data object Profile : NavRoutes("profile")
@@ -38,15 +39,14 @@ sealed class NavRoutes(val route: String) {
     }
 }
 
-val authScreens=mapOf<String,@Composable (navController: NavController) -> Unit>(
-    NavRoutes.Login.route to { navController -> Login(navController=navController) },
-    NavRoutes.Register.route to { navController -> Register(navController = navController) }
+val authScreens = mapOf<String, @Composable (navController: NavController, userViewModel: UserViewModel, userState: UserState, authToken: String) -> Unit>(
+    NavRoutes.Login.route to { navController, userViewModel, userState,_ -> Login(navController = navController, userState = userState ,onUserEvents= userViewModel::onEvent) },
+    NavRoutes.Register.route to { navController, userViewModel, userState, authToken -> Register(navController = navController,userState=userState,onUserEvents = userViewModel::onEvent, authToken = authToken) }
 )
 
-val settingScreens = mapOf<String, @Composable (navController: NavController) -> Unit>(
-    NavRoutes.Profile.route to { navController -> Profile(navController) },
-    NavRoutes.Language.route to { navController -> Languages(navController = navController) },
-    NavRoutes.AboutUs.route to { navController -> AboutUs(navController = navController) },
-    NavRoutes.EditDetails.route to { navController -> EditProfileDetails(navController = navController) },
-    NavRoutes.FAQ.route to { navController -> FAQ(navController = navController) }
+val settingScreens = mapOf<String, @Composable (navController: NavController, userViewModel: UserViewModel, userState: UserState, authToken: String) -> Unit>(
+    NavRoutes.Language.route to { navController,_,_,_ -> Languages(navController = navController) },
+    NavRoutes.AboutUs.route to { navController,_,_,_ -> AboutUs(navController = navController) },
+    NavRoutes.EditDetails.route to { navController,userViewModel,userState, authToken -> EditProfileDetails(navController = navController,userState=userState, onUserEvents = userViewModel::onEvent, authToken = authToken) },
+    NavRoutes.FAQ.route to { navController,_,_,_ -> FAQ(navController = navController) }
 )

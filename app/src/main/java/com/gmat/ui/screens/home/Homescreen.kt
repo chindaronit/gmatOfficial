@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.gmat.ui.components.login.Top
 import com.gmat.ui.events.QRScannerEvents
-import com.gmat.ui.state.QRScannerState
 
 @Composable
 fun HomeScreen(
@@ -51,7 +50,7 @@ fun HomeScreen(
     onScannerEvent: (QRScannerEvents)->Unit
 ) {
     val user = "Ronit Chinda"
-    val isBusiness by remember { mutableStateOf(true) }
+    val isBusiness by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     var hasCameraPermission by remember {

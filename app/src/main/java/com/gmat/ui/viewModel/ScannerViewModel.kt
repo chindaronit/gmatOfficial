@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gmat.data.repository.QRCodeRepository
 import com.gmat.ui.events.QRScannerEvents
-import com.gmat.ui.state.QRScannerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ScannerViewModel @Inject constructor(
-    private val repo: QRCodeRepository
+    private val repo: QRCodeRepository,
 ):ViewModel() {
 
     private val _state = MutableStateFlow(QRScannerState())
@@ -27,6 +26,10 @@ class ScannerViewModel @Inject constructor(
             }
             QRScannerEvents.StartScanning -> {
                 startScanning()
+            }
+
+            is QRScannerEvents.AddQR -> {
+                _state.update { it.copy(details = event.qr) }
             }
         }
     }

@@ -1,7 +1,9 @@
 [versions]
+accompanistPlaceholderMaterial = "0.33.0-alpha"
 agp = "8.5.2"
+converterGson = "2.9.0"
 core = "3.5.0"
-firebaseBom = "33.3.0"
+firebaseAppcheckPlayintegrity = "18.0.0"
 hilt = "2.52"
 ksp = "2.0.0-1.0.24"
 hiltCompiler = "1.2.0"
@@ -16,17 +18,20 @@ compose = "1.6.8"
 material3 = "1.2.1"
 navigationCompose = "2.8.0"
 appcompat = "1.7.0"
-playServicesBase = "18.5.0"
+okhttp = "4.12.0"
 playServicesCodeScanner = "16.1.0"
-gmsPlayService="4.4.2"
-junit = "4.12"
-monitor = "1.7.2"
-junitKtx = "1.2.1"
+retrofit = "(insert latest version)"
+googleGmsGoogleServices = "4.4.2"
+firebaseFirestore = "25.1.0"
 firebaseAuthKtx = "23.0.0"
+firebaseStorageKtx = "21.0.1"
+roomRuntime = "2.6.1"
+uiToolingPreviewAndroid = "1.7.3"
 
 [libraries]
 
 # AndroidX
+accompanist-placeholder-material = { module = "com.google.accompanist:accompanist-placeholder-material", version.ref = "accompanistPlaceholderMaterial" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
@@ -38,9 +43,13 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 #Hilt
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "uiToolingPreviewAndroid" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 core = { module = "com.google.zxing:core", version.ref = "core" }
-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-appcheck-playintegrity = { module = "com.google.firebase:firebase-appcheck-playintegrity", version.ref = "firebaseAppcheckPlayintegrity" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidCompiler" }
 hilt-compile = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompiler"}
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
@@ -48,12 +57,13 @@ hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", ve
 
 # Coil
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
-play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "playServicesBase" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "playServicesCodeScanner" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "monitor" }
-androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 
 
 [plugins]
@@ -62,4 +72,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-google-services= {id="com.google.gms.google-services",version.ref="gmsPlayService"}
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
